@@ -530,6 +530,65 @@ Explanation:
     current_page: page,
   });
 };
+const getMedicineDetails = async (req, res) => {
+  // Get the brand_id from the URL parameter
+  const brandId = parseInt(req.params.ID, 10); // Convert the ID to an integer
+  // Create a filter object to be used in the MongoDB query
+  const filter = { brand_id: brandId };
+
+  // Fetch the medicine details from the "Medicine" collection
+  const medicineDetails = await Medicine.findOne(filter).lean().exec();
+  console.log(medicineDetails);
+  if (!medicineDetails) {
+    // If no medicine found with the provided brand_id, return an error response
+    return res.status(404).json({
+      status: false,
+      message: "Medicine not found",
+    });
+  }
+
+  // Fetch additional data from "MedicineCompanyName" and "MedicineGeneric" collections
+  const { company_id, generic_id } = medicineDetails;
+
+  // Get company details based on company_id
+  const companyDetails = await MedicineCompanyName.findOne({ company_id })
+    .lean()
+    .exec();
+
+  let genericDetails = null;
+  if (generic_id) {
+    // Convert the string to an integer before querying the "MedicineGeneric" collection
+    const intGenericId = parseInt(generic_id, 10);
+    genericDetails = await MedicineGeneric.findOne({
+      generic_id: intGenericId,
+    })
+      .lean()
+      .exec();
+
+    if (genericDetails) {
+      // Format the data inside the genericDetails object
+      Object.keys(genericDetails).forEach((key) => {
+        if (typeof genericDetails[key] === "string") {
+          genericDetails[key] = genericDetails[key].replace(/\s+/g, " ").trim();
+        }
+      });
+    }
+  }
+
+  // Create the final response object with medicine details, company details, and generic details
+  const response = {
+    ...medicineDetails,
+    company_name: companyDetails?.company_name,
+    generic_details: genericDetails ? [genericDetails] : [],
+  };
+
+  // Send the JSON response containing the medicine details
+  res.json({
+    status: true,
+    details: response,
+  });
+};
+
 module.exports = {
   getAllMedicine,
   searchMedicine,
@@ -537,4 +596,5 @@ module.exports = {
   searchByGeneric,
   displayCompany,
   searchByCompanyId,
+  getMedicineDetails,
 };

@@ -4,7 +4,9 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const medicineSchema = require("./schemas/medicineSchema");
+const doctorsSchema = require("./schemas/doctorsSchema");
 const Medicine = require("./models/Medicine");
+const Doctors = require("./models/Doctors");
 // Create Express app
 const app = express();
 
@@ -18,6 +20,7 @@ app.use(express.json());
 app.use(cors());
 // Routes
 const medicineRoute = require("./routes/medicine.route");
+const doctorsRoute = require("./routes/doctors.route");
 const versionRoute = require("./routes/versions.route");
 // Connect to MongoDB database
 mongoose
@@ -30,10 +33,10 @@ mongoose
 
 // Define route schema
 medicineSchema;
-
+doctorsSchema;
 // Define route model
 Medicine;
-
+Doctors;
 // Route for index
 app.get("/", (req, res) => {
   res.send("Server is running");
@@ -41,6 +44,7 @@ app.get("/", (req, res) => {
 
 // Define endpoint for getting all bus routes
 app.use("/api/v2/medicine", medicineRoute);
+app.use("/api/v2/doctors", doctorsRoute);
 app.use("/api/v1/version", versionRoute);
 
 // Start server
