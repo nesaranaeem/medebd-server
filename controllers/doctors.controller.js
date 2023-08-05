@@ -5,7 +5,7 @@ const DoctorSpeciality = require("../models/DoctorSpeciality");
 const getDoctorsInfo = async (req, res) => {
   /*
     Sample API call:
-    GET http://localhost:5000/api/v2/doctors?page=1&limit=10
+    GET http://localhost:5000/api/v2/doctor?page=1&limit=10
     This call will fetch a list of doctors with pagination and 10 results per page.
   */
 
@@ -81,6 +81,11 @@ const getDoctorsInfo = async (req, res) => {
   });
 };
 const getDoctorDetails = async (req, res) => {
+  /*
+    Sample API call:
+    GET http://localhost:5000/api/v2/doctor/:ID
+    This call will fetch a doctor info by id.
+  */
   const doctorId = parseInt(req.params.id, 10);
 
   if (isNaN(doctorId)) {

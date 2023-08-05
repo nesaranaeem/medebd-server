@@ -538,7 +538,6 @@ const getMedicineDetails = async (req, res) => {
 
   // Fetch the medicine details from the "Medicine" collection
   const medicineDetails = await Medicine.findOne(filter).lean().exec();
-  console.log(medicineDetails);
   if (!medicineDetails) {
     // If no medicine found with the provided brand_id, return an error response
     return res.status(404).json({
