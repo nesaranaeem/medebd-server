@@ -13,11 +13,19 @@ http://localhost:5000/api/v2/medicine/company?limit=5&page=2
 http://localhost:5000/api/v2/medicine/searchByCompanyId?id=37&page=2&limit=10
 http://localhost:5000/api/v2/medicine/10
 */
-router.get("/", medicineController.getAllMedicine);
-router.get("/search", medicineController.searchMedicine);
-router.get("/generic", medicineController.displayGeneric);
-router.get("/searchByGeneric", medicineController.searchByGeneric);
-router.get("/company", medicineController.displayCompany);
-router.get("/searchByCompanyId", medicineController.searchByCompanyId);
-router.get("/:ID", medicineController.getMedicineDetails);
+router.get("/", whiteListedDomain, medicineController.getAllMedicine);
+router.get("/search", whiteListedDomain, medicineController.searchMedicine);
+router.get("/generic", whiteListedDomain, medicineController.displayGeneric);
+router.get(
+  "/searchByGeneric",
+  whiteListedDomain,
+  medicineController.searchByGeneric
+);
+router.get("/company", whiteListedDomain, medicineController.displayCompany);
+router.get(
+  "/searchByCompanyId",
+  whiteListedDomain,
+  medicineController.searchByCompanyId
+);
+router.get("/:ID", whiteListedDomain, medicineController.getMedicineDetails);
 module.exports = router;

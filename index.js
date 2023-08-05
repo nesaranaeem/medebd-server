@@ -11,7 +11,6 @@ const Doctors = require("./models/Doctors");
 const Hospitals = require("./models/Hospitals");
 // Create Express app
 const app = express();
-
 // Port
 const port = process.env.PORT || 5000;
 // Load environment variables
@@ -48,7 +47,7 @@ app.get("/", (req, res) => {
   const response = {
     status: 200,
     message: "🚀 Welcome to the JavaScript Magic Land! 🎉",
-    welcomeMessage: `Greetings, aspiring JavaScript sorcerer! Prepare to be enchanted by the wonders of coding, crafted with love by ${authorName}.`,
+    welcomeMessage: `Greetings! crafted with love by ${authorName}.`,
     secretHint:
       "Psst... Discover the power of 'console.log' to unveil hidden secrets in your code! 🧙‍♂️",
     powerUp:
@@ -56,13 +55,11 @@ app.get("/", (req, res) => {
   };
   res.status(response.status).send(response);
 });
-
 // Define endpoint for getting all bus routes
 app.use("/api/v2/medicine", medicineRoute);
 app.use("/api/v2/doctor", doctorsRoute);
 app.use("/api/v2/hospital", hospitalsRoute);
 app.use("/api/v2/version", versionRoute);
-
 // Start server
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);

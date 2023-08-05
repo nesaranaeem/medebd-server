@@ -7,9 +7,9 @@ http://localhost:5000/api/v2/doctor?page=1&limit=10
 http://localhost:5000/api/v2/doctor/7
 */
 // Route to get list of all doctors
-router.get("/", doctorsController.getDoctorsInfo);
+router.get("/", whiteListedDomain, doctorsController.getDoctorsInfo);
 
 // Route to get details of a specific doctor by ID
-router.get("/:id", doctorsController.getDoctorDetails);
+router.get("/:id", whiteListedDomain, doctorsController.getDoctorDetails);
 
 module.exports = router;
