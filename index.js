@@ -44,14 +44,24 @@ Doctors;
 Hospitals;
 // Route for index
 app.get("/", (req, res) => {
-  res.send("Server is running");
+  const authorName = "Nesar Ahmed Naeem";
+  const response = {
+    status: 200,
+    message: "🚀 Welcome to the JavaScript Magic Land! 🎉",
+    welcomeMessage: `Greetings, aspiring JavaScript sorcerer! Prepare to be enchanted by the wonders of coding, crafted with love by ${authorName}.`,
+    secretHint:
+      "Psst... Discover the power of 'console.log' to unveil hidden secrets in your code! 🧙‍♂️",
+    powerUp:
+      "But wait, there's more! Master the art of 'async/await' to wield asynchronous powers with ease! ✨🌟",
+  };
+  res.status(response.status).send(response);
 });
 
 // Define endpoint for getting all bus routes
 app.use("/api/v2/medicine", medicineRoute);
 app.use("/api/v2/doctor", doctorsRoute);
 app.use("/api/v2/hospital", hospitalsRoute);
-app.use("/api/v1/version", versionRoute);
+app.use("/api/v2/version", versionRoute);
 
 // Start server
 app.listen(port, () => {
