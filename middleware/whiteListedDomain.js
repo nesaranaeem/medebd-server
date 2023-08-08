@@ -4,7 +4,11 @@ const whiteListedDomain = (req, res, next) => {
   const apiKey = req.query.apikey;
 
   // Check if the request origin matches one of the allowed domains
-  const allowedDomains = ["https://medebd.com", "http://localhost:3000"];
+  const allowedDomains = [
+    "https://medebd.com",
+    "https://medebd-client-nextjs.netlify.app/",
+    "http://localhost:3000",
+  ];
   if (allowedDomains.includes(req.headers.origin)) {
     res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
     res.setHeader(
