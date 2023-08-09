@@ -6,7 +6,7 @@ const whiteListedDomain = (req, res, next) => {
   // Check if the request origin matches one of the allowed domains
   const allowedDomains = [
     "https://medebd.com",
-    "https://medebd-client-nextjs.netlify.app/",
+    "https://medebd-client-nextjs.netlify.app",
     "http://localhost:3000",
   ];
   if (allowedDomains.includes(req.headers.origin)) {
