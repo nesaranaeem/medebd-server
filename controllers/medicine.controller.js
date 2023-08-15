@@ -3,37 +3,37 @@ const MedicineCompanyName = require("../models/MedicineCompany");
 const MedicineGeneric = require("../models/MedicineGeneric");
 
 const getAllMedicine = async (req, res) => {
-  /*
-  Author: Nesar Ahmed Naeem
-  Sample API call:
-GET http://localhost:5000/api/v2/medicine?medicineName=napa&page=1&limit=10
-This call will fetch medicines whose brand_name contains "napa" (case-insensitive)
-It will return 10 results per page, and the first page of results will be shown.
-*/
-
-  // Get the page number and limit from query parameters, with default values if not provided
   const page = parseInt(req.query.page) || 1;
   let limit = parseInt(req.query.limit) || 10;
   if (limit > 20) {
     limit = 10;
   }
-  // Calculate the number of documents to skip based on the current page and limit
   const skip = (page - 1) * limit;
 
-  // Get the medicineName parameter from the query
   const medicineName = req.query.medicineName;
 
-  // Create a filter object to be used in the MongoDB query
   let filter = {};
   if (medicineName) {
-    // If medicineName is provided, use a regex to match case-insensitive brand names containing the medicineName
-    filter["brand_name"] = { $regex: new RegExp(medicineName, "i") };
+    // Split the medicineName into individual keywords
+    const keywords = medicineName.split(" ");
+
+    // Build a $regex condition for each keyword to match in brand_name, form, and strength
+    const keywordConditions = keywords.map((keyword) => ({
+      $or: [
+        { brand_name: { $regex: new RegExp(keyword, "i") } },
+        { form: { $regex: new RegExp(keyword, "i") } },
+        { strength: { $regex: new RegExp(keyword, "i") } },
+      ],
+    }));
+
+    // Combine the keyword conditions with an $and operator
+    filter = {
+      $and: keywordConditions,
+    };
   }
 
-  // Count the total number of documents that match the filter
   const totalCount = await Medicine.countDocuments(filter);
 
-  // Use the MongoDB aggregate pipeline to fetch data and add a matchScore field based on brand_name
   const data = await Medicine.aggregate([
     {
       $match: filter,
@@ -60,19 +60,16 @@ It will return 10 results per page, and the first page of results will be shown.
     },
   ]).exec();
 
-  // Fetch additional data from "MedicineCompanyName" and "MedicineGeneric" collections
   const dataWithDetails = await Promise.all(
     data.map(async (item) => {
       const { company_id, generic_id } = item;
 
-      // Get company details based on company_id
       const companyDetails = await MedicineCompanyName.findOne({ company_id })
         .lean()
         .exec();
 
       let genericDetails = null;
       if (generic_id) {
-        // Convert the string to an integer before querying the "MedicineGeneric" collection
         const intGenericId = parseInt(generic_id, 10);
         genericDetails = await MedicineGeneric.findOne({
           generic_id: intGenericId,
@@ -81,7 +78,6 @@ It will return 10 results per page, and the first page of results will be shown.
           .exec();
 
         if (genericDetails) {
-          // Format the data inside the genericDetails object
           Object.keys(genericDetails).forEach((key) => {
             if (typeof genericDetails[key] === "string") {
               genericDetails[key] = genericDetails[key]
@@ -100,10 +96,8 @@ It will return 10 results per page, and the first page of results will be shown.
     })
   );
 
-  // Calculate total number of pages for the original data
   const totalPages = Math.ceil(totalCount / limit);
 
-  // Send the JSON response containing the data, total count, and pagination details
   res.json({
     status: true,
     details: dataWithDetails,
