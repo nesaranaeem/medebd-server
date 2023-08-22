@@ -6,9 +6,11 @@ const cors = require("cors");
 const medicineSchema = require("./schemas/medicineSchema");
 const doctorsSchema = require("./schemas/doctorsSchema");
 const hospitalsSchema = require("./schemas/hospitalsSchema");
+const imageSchema = require("./schemas/imageSchema");
 const Medicine = require("./models/Medicine");
 const Doctors = require("./models/Doctors");
 const Hospitals = require("./models/Hospitals");
+const Image = require("./models/Image");
 // Create Express app
 const app = express();
 // Port
@@ -23,7 +25,9 @@ app.use(cors());
 const medicineRoute = require("./routes/medicine.route");
 const doctorsRoute = require("./routes/doctors.route");
 const hospitalsRoute = require("./routes/hospitals.route");
+const imageRoute = require("./routes/image.route");
 const versionRoute = require("./routes/versions.route");
+
 // Connect to MongoDB database
 mongoose
   .connect(process.env.DB_CONNECT, {
@@ -37,10 +41,12 @@ mongoose
 medicineSchema;
 doctorsSchema;
 hospitalsSchema;
+imageSchema;
 // Define route model
 Medicine;
 Doctors;
 Hospitals;
+Image;
 // Route for index
 app.get("/", (req, res) => {
   const authorName = "Nesar Ahmed Naeem";
@@ -59,6 +65,7 @@ app.get("/", (req, res) => {
 app.use("/api/v2/medicine", medicineRoute);
 app.use("/api/v2/doctor", doctorsRoute);
 app.use("/api/v2/hospital", hospitalsRoute);
+app.use("/api/v2/image", imageRoute);
 app.use("/api/v2/version", versionRoute);
 // Start server
 app.listen(port, () => {

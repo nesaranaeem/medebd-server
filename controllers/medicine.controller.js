@@ -11,25 +11,28 @@ const getAllMedicine = async (req, res) => {
   const skip = (page - 1) * limit;
 
   const medicineName = req.query.medicineName;
+  const genericId = req.query.genericId;
 
   let filter = {};
-  if (medicineName) {
-    // Split the medicineName into individual keywords
-    const keywords = medicineName.split(" ");
+  const keywordConditions = [];
 
-    // Build a $regex condition for each keyword to match in brand_name, form, and strength
-    const keywordConditions = keywords.map((keyword) => ({
-      $or: [
+  if (medicineName) {
+    const keywords = medicineName.split(" ");
+    keywords.forEach((keyword) => {
+      keywordConditions.push(
         { brand_name: { $regex: new RegExp(keyword, "i") } },
         { form: { $regex: new RegExp(keyword, "i") } },
-        { strength: { $regex: new RegExp(keyword, "i") } },
-      ],
-    }));
+        { strength: { $regex: new RegExp(keyword, "i") } }
+      );
+    });
+  }
 
-    // Combine the keyword conditions with an $and operator
-    filter = {
-      $and: keywordConditions,
-    };
+  if (genericId) {
+    keywordConditions.push({ generic_id: genericId });
+  }
+
+  if (keywordConditions.length > 0) {
+    filter = { $or: keywordConditions };
   }
 
   const totalCount = await Medicine.countDocuments(filter);
@@ -218,34 +221,41 @@ const searchMedicine = async (req, res) => {
 };
 const displayGeneric = async (req, res) => {
   /* 
- Author: Nesar Ahmed Naeem
- Sample API call:
-Endpoint: http://localhost:5000/api/v2/medicine/generic?limit=5&page=2
-*/
-  // Get the page number and limit from query parameters, with default values if not provided
+  Author: Nesar Ahmed Naeem
+  Sample API call:
+  Endpoint: http://localhost:5000/api/v2/medicine/generic?limit=5&page=2&search=keyword
+  */
+  // Get the page number, limit, and search keyword from query parameters, with default values if not provided
   const page = parseInt(req.query.page) || 1;
   let limit = parseInt(req.query.limit) || 10;
   if (limit > 20) {
     limit = 10;
   }
+  const searchKeyword = req.query.search || ""; // Get the search keyword
+
   // Calculate the number of documents to skip based on the current page and limit
   const skip = (page - 1) * limit;
 
-  // Fetch all objects from MedicineGeneric model
-  const data = await MedicineGeneric.find({})
+  // Build a query to search for the generic_name field with the provided search keyword
+  const searchQuery = {
+    generic_name: { $regex: searchKeyword, $options: "i" }, // Case-insensitive search
+  };
+
+  // Fetch matching objects from MedicineGeneric model based on the search query
+  const data = await MedicineGeneric.find(searchQuery)
     .select("_id generic_name generic_name_bangla generic_id")
     .exec();
 
-  // Count the total number of documents
+  // Count the total number of matching documents
   const totalCount = data.length;
 
-  // Calculate the total number of pages for the original data
+  // Calculate the total number of pages for the matching data
   const totalPages = Math.ceil(totalCount / limit);
 
-  // Apply pagination to the data
+  // Apply pagination to the matching data
   const paginatedData = data.slice(skip, skip + limit);
 
-  // Format the data for the response
+  // Format the matching data for the response
   const formattedData = paginatedData.map((item) => ({
     _id: item._id,
     generic_id: item.generic_id,
@@ -256,7 +266,7 @@ Endpoint: http://localhost:5000/api/v2/medicine/generic?limit=5&page=2
         : item.generic_name_bangla.trim(),
   }));
 
-  // Send the JSON response containing the data, total count, and pagination details
+  // Send the JSON response containing the matching data, total count, and pagination details
   res.json({
     status: true,
     details: formattedData,
@@ -265,6 +275,7 @@ Endpoint: http://localhost:5000/api/v2/medicine/generic?limit=5&page=2
     current_page: page,
   });
 };
+
 const searchByGeneric = async (req, res) => {
   /* 
  Author: Nesar Ahmed Naeem
